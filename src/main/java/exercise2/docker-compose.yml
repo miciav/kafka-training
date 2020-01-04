@@ -1,0 +1,32 @@
+version: "2.1"
+
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    networks:
+      - kafka-net
+  kafka:
+    image: wurstmeister/kafka:2.11-1.1.1
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    hostname: kafka
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://127.0.0.1:9092
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - kafka-net
+    depends_on:
+      - zookeeper
+
+networks:
+  kafka-net:
+      name: kafka-net
